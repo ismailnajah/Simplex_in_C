@@ -1,1 +1,1 @@
-# Simplex_in_C
+# Simplex Algorithm in C
