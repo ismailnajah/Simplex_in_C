@@ -5,11 +5,10 @@
 #include <stdlib.h>
 #include <stdbool.h>
 
-
 struct Matrix{
     int r;//rows
     int c;//columns
-    int **values;
+    float **values;
 };
 typedef struct Matrix* Matrix;
 
@@ -25,5 +24,12 @@ int multiply(Matrix left,Matrix right,int line,int col);
 
 //utility functions
 void error_handler(void* pointer,char* msg);
+
+void Multipy_by_k(Matrix M, float k);
+
+Matrix transpose(Matrix matrix);
+float determinant(Matrix a,float k);
+Matrix Adjugate(Matrix M);
+Matrix Inverse(Matrix M);
 
 #endif
