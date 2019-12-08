@@ -1,30 +1,32 @@
 #include "Headers/Matrix.h"
+#define MIN(x,y) ((x)<(y)?(x):(y))
 
-void get_data(FILE* file,Matrix C,Matrix b,Matrix A){
+void get_data(FILE* file,Matrix *C,Matrix *b,Matrix *A){
     int rows,cols;
     fscanf(file,"%i",&cols);
     fscanf(file,"%i",&rows);
 
-    C = new_matrix(1,cols);
-    b = new_matrix(rows,1);
-    A = new_matrix(rows,cols);
+    *C = new_matrix(1,cols);
+    *b = new_matrix(rows,1);
+    *A = new_matrix(rows,cols);
 
     //objectif function values : cT
     for(int i=0;i<cols;i++){
-        fscanf(file,"%i",&(C->values[0][i]));
+        fscanf(file,"%i",&((*C)->values[0][i]));
     }
 
     //Constrains values : b
     for(int i=0;i<rows;i++){
-        fscanf(file,"%i",&(b->values[i][0]));
+        fscanf(file,"%i",&((*b)->values[i][0]));
     }
-
+ 
     //the A matrix
     for(int i=0;i<rows;i++){
         for(int j=0;j<cols;j++){
-            fscanf(file,"%i",&(A->values[i][j]));
+            fscanf(file,"%i",&((*A)->values[i][j]));
         }
     }
+    
 }
 
 Matrix new_matrix(int rows,int cols){
@@ -50,6 +52,32 @@ void show_matrix(Matrix m){
         }
         printf("\n");
     }
+}
+
+//Matrix operations
+int multiply(Matrix left,Matrix right,int line,int col){
+    int result = 0;
+    for(int i=0;i < left->c;i++){
+        result += left->values[line][i]*right->values[i][col];
+    }
+    return result;
+}
+
+Matrix multiply_matrix(Matrix left,Matrix right){
+    if (left->c != right->r){
+        printf("Invalid matrix multiplication\n");
+        exit(EXIT_FAILURE);
+    }
+    int cols = right->c;
+    int rows =left->r;
+
+    Matrix result = new_matrix(rows,cols);
+    for(int i=0; i < rows; i++){
+        for(int j=0; j < cols; j++){
+            result->values[i][j] = multiply(left,right,i,j);
+        }
+    }
+    return result;
 }
 
 //utility functions
