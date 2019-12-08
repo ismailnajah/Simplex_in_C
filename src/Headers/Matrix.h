@@ -20,13 +20,17 @@ void free_matrix(Matrix m);
 void get_data(FILE* file,Matrix *C,Matrix *b,Matrix *A);
 
 //Matrix operations
-Matrix multiply_matrix(Matrix m1,Matrix m2);
-float multiply(Matrix left,Matrix right,int line,int col);
+Matrix Multiply(Matrix m1,Matrix m2);
+float compute(Matrix left,Matrix right,int line,int col);
 
-Matrix multiply_matrix_float(float value,Matrix m);
+Matrix multiply_by_k(float value,Matrix m);
 
-Matrix cofactor(Matrix m,int row,int col);
-float determinante_matrix(Matrix m);
+Matrix Cofactor(Matrix m,int row,int col);
+float Determinante(Matrix m);
+Matrix Adjoint(Matrix m);
+Matrix Inverse(Matrix m);
+Matrix Transpose(Matrix m);
+
 
 
 //utility functions

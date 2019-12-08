@@ -63,7 +63,7 @@ void show_matrix(Matrix m){
 }
 
 //Matrix operations
-float multiply(Matrix left,Matrix right,int line,int col){
+float compute(Matrix left,Matrix right,int line,int col){
     float result = 0;
     for(int i=0;i < left->c;i++){
         result += left->values[line][i]*right->values[i][col];
@@ -71,7 +71,7 @@ float multiply(Matrix left,Matrix right,int line,int col){
     return result;
 }
 
-Matrix multiply_matrix(Matrix left,Matrix right){
+Matrix Multiply(Matrix left,Matrix right){
     if (left->c != right->r){
         printf("Invalid matrix multiplication\n");
         exit(EXIT_FAILURE);
@@ -82,14 +82,14 @@ Matrix multiply_matrix(Matrix left,Matrix right){
     Matrix result = new_matrix(rows,cols);
     for(int i=0; i < rows; i++){
         for(int j=0; j < cols; j++){
-            result->values[i][j] = multiply(left,right,i,j);
+            result->values[i][j] = compute(left,right,i,j);
         }
     }
     return result;
 }
 
 
-Matrix multiply_matrix_float(float value,Matrix m){
+Matrix multiply_by_k(float value,Matrix m){
     Matrix result = new_matrix(m->r,m->c);
     for(int i=0;i<m->r;i++){
         for(int j=0;j<m->c;j++){
@@ -100,7 +100,7 @@ Matrix multiply_matrix_float(float value,Matrix m){
 }
 
 
-Matrix cofactor(Matrix m,int row,int col){
+Matrix Cofactor(Matrix m,int row,int col){
     Matrix cof = new_matrix(m->r-1,m->c-1);
     int r=0,c=0;
     for(int i=0;i<m->r;i++){
@@ -118,14 +118,14 @@ Matrix cofactor(Matrix m,int row,int col){
     return cof;
 }
 
-float determinante_matrix(Matrix m){
+float Determinante(Matrix m){
     if(m->r == 1)
         return m->values[0][0];
     float D = 0;
     int sign = 1;
     for(int i=0;i<m->c;i++){
-        Matrix cof = cofactor(m,0,i);
-        D += sign*m->values[0][i]*determinante_matrix(cof);
+        Matrix cof = Cofactor(m,0,i);
+        D += sign*m->values[0][i]*Determinante(cof);
         free_matrix(cof);
         sign = -sign;
     }
@@ -133,6 +133,40 @@ float determinante_matrix(Matrix m){
     return D;
 }
 
+Matrix Adjoint(Matrix m){
+    Matrix temp = new_matrix(m->r,m->c);
+    int sign = 1;
+    for(int row=0;row < temp->r;row++){
+        for(int col=0;col<temp->c;col++){
+            Matrix cof = Cofactor( m, row, col);
+            temp->values[row][col] = sign * Determinante(cof);
+            sign = -sign;
+            free_matrix(cof);
+        }
+    }
+    Matrix result = Transpose(temp);
+    free_matrix(temp);  
+    return result;
+}
+
+Matrix Transpose(Matrix m){
+    Matrix t = new_matrix(m->c,m->r);
+    for(int i=0;i<t->r;i++){
+        for(int j=0;j<t->c;j++){
+            t->values[i][j] = m->values[j][i];
+        }
+    }
+    return t;
+}
+
+
+Matrix Inverse(Matrix m){
+    Matrix adj = Adjoint(m);
+    float det = Determinante(m);
+    Matrix inv = multiply_by_k(1/det,adj);
+    free_matrix(adj);
+    return inv;    
+}
 
 
 //utility functions
