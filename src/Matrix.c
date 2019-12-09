@@ -53,13 +53,48 @@ void free_matrix(Matrix m){
     free(m);
 }
 
+void free_memory(Matrix m,...){
+    va_list ap;
+    va_start(ap,m);
+    Matrix a = m;
+    while(a!=NULL){
+        free_matrix(a);
+        a = va_arg(ap,Matrix);
+    }
+    va_end(ap);
+}
+
 void show_matrix(Matrix m){
     for(int i=0; i < m->r; i++){
         for(int j=0; j < m->c; j++){
-            printf("%3.2f ",m->values[i][j]);
+            printf("%3.0f ",m->values[i][j]);
         }
         printf("\n");
     }
+    printf("\n");
+}
+
+
+Matrix base_variables(Matrix A,int m){
+    Matrix B = new_matrix(A->r,m);
+    for(int i=0; i < A->r; i++){
+        for(int j=0; j < m; j++){
+            B->values[i][j] = A->values[i][j];
+        }
+    }
+    return B;
+}
+
+Matrix off_base_variables(Matrix A,int m){
+    int c = A->c - m;
+    Matrix R = new_matrix(A->r,c);
+
+    for( int i=0; i < A->r; i++){
+        for( int j=m; j < A->c; j++){
+            R->values[i][j-m] = A->values[i][j];
+        }
+    }
+    return R;
 }
 
 //Matrix operations
@@ -168,6 +203,46 @@ Matrix Inverse(Matrix m){
     return inv;    
 }
 
+Matrix Identity(int n){
+    Matrix I = new_matrix(n,n);
+    for(int i=0;i<n;i++){
+        I->values[i][i] = 1;
+    }
+    return I;
+}
+
+void State(Matrix m,...){
+    int row = 0;
+    int c=1;
+    while(c!=0){
+        c=0;
+        va_list list;
+        va_start(list,m);
+        Matrix a = m;
+        while(a!=NULL){
+            c += print_row(a,row);
+            printf("  ");
+            a = va_arg(list,Matrix);
+        }
+        va_end(list);
+        row++;
+        printf("\n");
+    }
+
+}
+
+int print_row(Matrix m,int row){
+    int c=0;
+    for(int i=0;i<m->c;i++){
+        if(row < m->r){
+            printf(FLOAT_FORMAT,m->values[row][i]);
+            c++;
+        }else{
+            printf(SPACE_FORMAT); 
+        }
+    }
+    return c;
+}
 
 //utility functions
 void error_handler(void* pointer,char* msg){

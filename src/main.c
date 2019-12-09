@@ -5,35 +5,26 @@ int main(){
     FILE *file;
     file = fopen(DEFAULT_URL,"r");
     error_handler(file,"main");
-    //Matrix C,b,A;
+    Matrix C,b,A;
 
-    //get_data(file,&C,&b,&A);
+    get_data(file,&C,&b,&A);
+    int m = A->r;
+    Matrix cB,cR,B,R;
 
-    Matrix x = new_matrix(3,3);
-    
-    x->values[0][0] = 1;
-    x->values[0][1] = 2;
-    x->values[0][2] = 3;
+    cB = base_variables(C,m);
+    B = base_variables(A,m);
 
-    x->values[1][0] = 4;
-    x->values[1][1] = 1;
-    x->values[1][2] = 5;
+    cR = off_base_variables(C,m);
+    R = off_base_variables(A,m);
 
-    x->values[2][0] = 4;
-    x->values[2][1] = 0;
-    x->values[2][2] = 1;
+    Matrix Bi = Inverse(B);
+    Matrix Bib = Multiply(Bi,b);
+    Matrix cBBib = Multiply(cB,Bib);
+    //show_matrix(cBBib);
 
-    show_matrix(x);
-    printf("\n");
-    Matrix invx = Inverse(x);
-    show_matrix(invx);
+    State(A,cB,cR,B,R,b,NULL);
 
-    /* free_matrix(A);
-    free_matrix(C);
-    free_matrix(b); */
-    free_matrix(x);
-    free_matrix(invx);
-
+    free_memory(A,C,b,B,R,cB,cR,NULL);
     fclose(file);
     return 0;
 }
