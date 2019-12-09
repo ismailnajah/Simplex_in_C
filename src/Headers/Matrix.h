@@ -6,8 +6,7 @@
 
 #ifndef H_MATRIX
 #define H_MATRIX
-#define FLOAT_FORMAT "%3.0f"
-#define SPACE_FORMAT "   "
+
 
 
 
@@ -22,13 +21,13 @@ typedef struct Matrix* Matrix;
 Matrix new_matrix(int rows,int cols);
 void show_matrix(Matrix m);
 
-void free_matrix(Matrix m);
-void free_memory(Matrix m,...);
 
 void get_data(FILE* file,Matrix *C,Matrix *b,Matrix *A);
 
 //Matrix operations
 Matrix Multiply(Matrix m1,Matrix m2);
+Matrix Add(Matrix m1,Matrix m2);
+Matrix Substract(Matrix m1,Matrix m2);
 float compute(Matrix left,Matrix right,int line,int col);
 
 Matrix multiply_by_k(float value,Matrix m);
@@ -50,7 +49,14 @@ Matrix Identity(int n);
 void State(Matrix m,...); 
 int print_row(Matrix m,int row);
 
+
+//Memory managemet
+void free2D(float** pointer,int n);
+void free_matrix(Matrix m);
+void free_memory(Matrix m,...);
+
 //utility functions
 void error_handler(void* pointer,char* msg);
+Matrix Return(Matrix m,Matrix t);
 
 #endif

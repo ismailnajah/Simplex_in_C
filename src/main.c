@@ -17,12 +17,9 @@ int main(){
     cR = off_base_variables(C,m);
     R = off_base_variables(A,m);
 
-    Matrix Bi = Inverse(B);
-    Matrix Bib = Multiply(Bi,b);
-    Matrix cBBib = Multiply(cB,Bib);
-    //show_matrix(cBBib);
-
-    State(A,cB,cR,B,R,b,NULL);
+    
+    State(cR,cB,B,R,NULL);
+    show_matrix(Substract( cR , Multiply( cB , Multiply( Inverse(B) , R ) ) ));
 
     free_memory(A,C,b,B,R,cB,cR,NULL);
     fclose(file);

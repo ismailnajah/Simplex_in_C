@@ -1,5 +1,6 @@
 #include "Headers/Matrix.h"
-
+#define FLOAT_FORMAT "%6.2f"
+#define SPACE_FORMAT "      "
 
 void get_data(FILE* file,Matrix *C,Matrix *b,Matrix *A){
     int rows,cols;
@@ -45,34 +46,16 @@ Matrix new_matrix(int rows,int cols){
     return m;
 }
 
-void free_matrix(Matrix m){
-    for(int i=0;i<m->r;i++){
-        free(m->values[i]);
-    }
-    free(m->values);
-    free(m);
-}
-
-void free_memory(Matrix m,...){
-    va_list ap;
-    va_start(ap,m);
-    Matrix a = m;
-    while(a!=NULL){
-        free_matrix(a);
-        a = va_arg(ap,Matrix);
-    }
-    va_end(ap);
-}
-
 void show_matrix(Matrix m){
     for(int i=0; i < m->r; i++){
         for(int j=0; j < m->c; j++){
-            printf("%3.0f ",m->values[i][j]);
+            printf(FLOAT_FORMAT,m->values[i][j]);
         }
         printf("\n");
     }
     printf("\n");
 }
+
 
 
 Matrix base_variables(Matrix A,int m){
@@ -120,20 +103,35 @@ Matrix Multiply(Matrix left,Matrix right){
             result->values[i][j] = compute(left,right,i,j);
         }
     }
-    return result;
+    return Return(left,result);
 }
-
 
 Matrix multiply_by_k(float value,Matrix m){
-    Matrix result = new_matrix(m->r,m->c);
     for(int i=0;i<m->r;i++){
         for(int j=0;j<m->c;j++){
-            result->values[i][j] = m->values[i][j] * value;
+            m->values[i][j] *= value;
         }
     }
-    return result;
+    return m;
 }
 
+Matrix Add(Matrix m1,Matrix m2){
+    for(int i=0;i<m1->r;i++){
+        for(int j=0;j<m1->c;j++){
+            m1->values[i][j] += m2->values[i][j];
+        }
+    }
+    return m1;
+}
+
+Matrix Substract(Matrix m1,Matrix m2){
+    for(int i=0;i<m1->r;i++){
+        for(int j=0;j<m1->c;j++){
+            m1->values[i][j] -= m2->values[i][j];
+        }
+    }
+    return m1;
+}
 
 Matrix Cofactor(Matrix m,int row,int col){
     Matrix cof = new_matrix(m->r-1,m->c-1);
@@ -180,26 +178,25 @@ Matrix Adjoint(Matrix m){
         }
     }
     Matrix result = Transpose(temp);
-    free_matrix(temp);  
-    return result;
+
+    return Return(m,result);
 }
 
 Matrix Transpose(Matrix m){
     Matrix t = new_matrix(m->c,m->r);
-    for(int i=0;i<t->r;i++){
+    for(int i=0;i< t->r ;i++){
         for(int j=0;j<t->c;j++){
             t->values[i][j] = m->values[j][i];
         }
     }
-    return t;
+    return Return(m,t);
+
 }
 
-
 Matrix Inverse(Matrix m){
-    Matrix adj = Adjoint(m);
     float det = Determinante(m);
+    Matrix adj = Adjoint(m);
     Matrix inv = multiply_by_k(1/det,adj);
-    free_matrix(adj);
     return inv;    
 }
 
@@ -244,10 +241,45 @@ int print_row(Matrix m,int row){
     return c;
 }
 
+
+//Memory management 
+void free2D(float** pointer,int n){
+    for(int i=0;i<n;i++){
+        free(pointer[i]);
+    }
+    free(pointer);
+}
+
+void free_matrix(Matrix m){
+    free2D(m->values,m->r);
+    free(m);
+}
+
+void free_memory(Matrix m,...){
+    va_list ap;
+    va_start(ap,m);
+    Matrix a = m;
+    while(a!=NULL){
+        free_matrix(a);
+        a = va_arg(ap,Matrix);
+    }
+    va_end(ap);
+}
+
+
 //utility functions
 void error_handler(void* pointer,char* msg){
     if(pointer==NULL){
         perror(msg);
         exit(EXIT_FAILURE);
     }
+}
+
+Matrix Return(Matrix m,Matrix temp){
+    free2D(m->values,m->r);
+    m->r = temp->r;
+    m->c = temp->c;
+    m->values = temp->values;
+    free(temp);
+    return m;
 }
