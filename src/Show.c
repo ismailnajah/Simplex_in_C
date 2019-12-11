@@ -97,7 +97,7 @@ void header(Matrix xB_T,Matrix xR){
 
 void body(Matrix xB,Matrix I,Matrix R,Matrix Z,Matrix b){
     for(int i=0;i<xB->r;i++){
-        printf("    x%.0f",xB->values[0][i]);
+        printf("    x%.0f",xB->values[i][0]);
         printf("     ");
         print_row(I,i);
         printf("  ");
