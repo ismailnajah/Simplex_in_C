@@ -1,6 +1,7 @@
 #include "Headers/Show.h"
 #define FLOAT_FORMAT " %6.2f"
 #define SPACE_FORMAT "       "
+#define BR 75
 
 void show_matrix(Matrix m){
     for(int i=0; i < m->r; i++){
@@ -70,12 +71,14 @@ void show_system(Matrix xB,Matrix xR,Matrix B,Matrix R,Matrix cB,Matrix cR,Matri
 
     Matrix _cB_Bi_b = multiply_by_k(-1,cB_Bi_b);
 
-    //HEADER
+    //Table
+    br('-');
     header(xB_T,xR);
-    
+    br('-');
     body(xB,I,Bi_R,c_zero,Bi_b);
-
+    br('-');
     footer(r_zero,cR_cB_Bi_R,z,_cB_Bi_b);
+    br('-');
 
     
     free_memory(xB_T , I, c_zero, r_zero, z,Bi, cB_Bi, Bi_R,
@@ -84,36 +87,35 @@ void show_system(Matrix xB,Matrix xR,Matrix B,Matrix R,Matrix cB,Matrix cR,Matri
 
 
 void header(Matrix xB_T,Matrix xR){
-    printf("Var. base");
+    printf("Var. base |");
     for(int i=0;i<xB_T->c;i++)
         printf("     x%.0f",xB_T->values[0][i]);
 
-    printf("   ");
+    printf("    ");
     for(int i=0;i<xR->c;i++)
         printf("    x%.0f",xR->values[0][i]);
 
-    printf("        -Z     Termes droit\n\n");    
+    printf(" |    -Z  |  Termes droit\n");    
 }
 
 void body(Matrix xB,Matrix I,Matrix R,Matrix Z,Matrix b){
     for(int i=0;i<xB->r;i++){
-        printf("    x%.0f",xB->values[i][0]);
-        printf("     ");
+        printf("   x%.0f",xB->values[i][0]);
+        printf("     |");
         print_row(I,i);
         printf("  ");
         print_row(R,i);
-        printf("  ");
+        printf(" |");
         print_row(Z,i);
-        printf("  ");
+        printf(" |");
         print_row(b,i);
         printf("\n");
     }
-    printf("\n");
 }
 
 
 void footer(Matrix B,Matrix R,Matrix z,Matrix result){
-    printf("    -Z     ");
+    printf("    -Z    |");
     for(int i=0;i<B->c;i++)
         printf(FLOAT_FORMAT,B->values[0][i]);
     
@@ -121,9 +123,15 @@ void footer(Matrix B,Matrix R,Matrix z,Matrix result){
     for(int i=0;i<R->c;i++)
         printf(FLOAT_FORMAT,R->values[0][i]);
     
-    printf("  ");
+    printf(" |");
     printf(FLOAT_FORMAT,z->values[0][0]);
-    printf("  ");       
+    printf(" |");       
     printf(FLOAT_FORMAT,result->values[0][0]);
+    printf("\n");
+}
+
+void br(char sep){
+    for(int i=0;i<BR;i++)
+        printf("%c",sep);
     printf("\n");
 }

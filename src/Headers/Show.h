@@ -13,5 +13,6 @@ void header(Matrix xB_T,Matrix xR);
 void body(Matrix xB,Matrix I,Matrix R,Matrix Z,Matrix b);
 void footer(Matrix B,Matrix R,Matrix z,Matrix result);
 
+void br(char sep);
 
 #endif

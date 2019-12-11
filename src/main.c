@@ -1,10 +1,16 @@
 #include "Headers/Matrix.h"
 #include "Headers/Show.h"
+#include <string.h>
 #define DEFAULT_URL "input.csv"
 
 int main(){
+    char path[1000];
+    printf(" URL of the input file (Default: input.csv) :\n");
+    scanf("%s",path);
+
     FILE *file;
-    file = fopen(DEFAULT_URL,"r");
+    file = fopen(path,"r");
+    
     error_handler(file,"main");
     Matrix C,b,A;
 
