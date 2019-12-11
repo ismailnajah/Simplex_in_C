@@ -1,4 +1,5 @@
 #include "Headers/Matrix.h"
+#include "Headers/Show.h"
 #define DEFAULT_URL "input.csv"
 
 int main(){
@@ -9,7 +10,7 @@ int main(){
 
     get_data(file,&C,&b,&A);
     int m = A->r;
-    Matrix cB,cR,B,R;
+    Matrix cB,cR,B,R,xB,xR;
 
     cB = base_variables(C,m);
     B = base_variables(A,m);
@@ -17,11 +18,13 @@ int main(){
     cR = off_base_variables(C,m);
     R = off_base_variables(A,m);
 
-    
-    State(cR,cB,B,R,NULL);
-    show_matrix(Substract( cR , Multiply( cB , Multiply( Inverse(B) , R ) ) ));
+    xB = init_base_variables(B->c,1);
+    xR = init_off_base_variables(B->c,R->c);
+    show_system(xB,xR,B,R,cB,cR,b);
+    /* State(cR,cB,B,R,NULL);
+    show_matrix( Multiply(cB , Multiply( Inverse(B) , b ))); */
 
-    free_memory(A,C,b,B,R,cB,cR,NULL);
+    free_memory(A,C,b,B,R,cB,cR,xB,xR,NULL);
     fclose(file);
     return 0;
 }

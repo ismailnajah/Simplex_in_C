@@ -1,6 +1,5 @@
 #include "Headers/Matrix.h"
-#define FLOAT_FORMAT "%6.2f"
-#define SPACE_FORMAT "      "
+
 
 void get_data(FILE* file,Matrix *C,Matrix *b,Matrix *A){
     int rows,cols;
@@ -46,17 +45,6 @@ Matrix new_matrix(int rows,int cols){
     return m;
 }
 
-void show_matrix(Matrix m){
-    for(int i=0; i < m->r; i++){
-        for(int j=0; j < m->c; j++){
-            printf(FLOAT_FORMAT,m->values[i][j]);
-        }
-        printf("\n");
-    }
-    printf("\n");
-}
-
-
 
 Matrix base_variables(Matrix A,int m){
     Matrix B = new_matrix(A->r,m);
@@ -78,6 +66,24 @@ Matrix off_base_variables(Matrix A,int m){
         }
     }
     return R;
+}
+
+Matrix init_base_variables(int m,int n){
+    Matrix X = new_matrix(m,n);
+    for(int i=0;i< m;i++){
+        for(int j=0;j<n;j++){
+            X->values[i][j] = 1+i+j;
+        }
+    }
+    return X;
+}
+
+Matrix init_off_base_variables(int m,int n){
+    Matrix X = new_matrix(1,n);
+    for(int i=0;i< n;i++){
+        X->values[0][i] = 1+m+i;
+    }
+    return X;
 }
 
 //Matrix operations
@@ -103,34 +109,37 @@ Matrix Multiply(Matrix left,Matrix right){
             result->values[i][j] = compute(left,right,i,j);
         }
     }
-    return Return(left,result);
+    return result;
 }
 
 Matrix multiply_by_k(float value,Matrix m){
+    Matrix result = new_matrix(m->r,m->c);
     for(int i=0;i<m->r;i++){
         for(int j=0;j<m->c;j++){
-            m->values[i][j] *= value;
+            result->values[i][j] = m->values[i][j] * value;
         }
     }
-    return m;
+    return result;
 }
 
 Matrix Add(Matrix m1,Matrix m2){
+    Matrix result = new_matrix(m1->r,m2->c);
     for(int i=0;i<m1->r;i++){
         for(int j=0;j<m1->c;j++){
-            m1->values[i][j] += m2->values[i][j];
+            result->values[i][j] = m1->values[i][j] + m2->values[i][j];
         }
     }
-    return m1;
+    return result;
 }
 
 Matrix Substract(Matrix m1,Matrix m2){
+    Matrix result = new_matrix(m1->r,m2->c);
     for(int i=0;i<m1->r;i++){
         for(int j=0;j<m1->c;j++){
-            m1->values[i][j] -= m2->values[i][j];
+            result->values[i][j] = m1->values[i][j] - m2->values[i][j];
         }
     }
-    return m1;
+    return result;
 }
 
 Matrix Cofactor(Matrix m,int row,int col){
@@ -178,8 +187,8 @@ Matrix Adjoint(Matrix m){
         }
     }
     Matrix result = Transpose(temp);
-
-    return Return(m,result);
+    free_matrix(temp);
+    return result;
 }
 
 Matrix Transpose(Matrix m){
@@ -189,7 +198,7 @@ Matrix Transpose(Matrix m){
             t->values[i][j] = m->values[j][i];
         }
     }
-    return Return(m,t);
+    return t;
 
 }
 
@@ -197,7 +206,68 @@ Matrix Inverse(Matrix m){
     float det = Determinante(m);
     Matrix adj = Adjoint(m);
     Matrix inv = multiply_by_k(1/det,adj);
+    free_matrix(adj);
     return inv;    
+}
+
+Matrix Inverse_Gaussian(Matrix m){
+    Matrix I = Identity(m->r);
+    Matrix A = Augment(m,I);
+    int n = m->r;
+    int p = m->c;
+    int i0 = 0;
+
+    for(int j=0; j<p; j++){
+        int k = i0;
+        while( k < n && A->values[k][j] == 0)
+            k++;
+
+        if( k < n){
+            float d = (float)(1.0f / A->values[i0][j]);
+            Permutation(A,i0,k);
+
+            Dilation(A,i0, d);
+
+            for(int i=0; i < n;i++){
+                if(i!=i0){
+                    Transvection(A,i,i0,-A->values[i][j]);
+                }
+            }
+            i0++;
+        }
+    }
+    Matrix result = off_base_variables(A,m->c);
+    free_matrix(A);
+    free_matrix(I);
+    return result;
+}
+
+void Permutation(Matrix m,int i,int j){
+    float* temp = m->values[i];
+    m->values[i] = m->values[j];
+    m->values[j] = temp;
+}
+
+void Dilation(Matrix m,int line,float a){
+    for(int i=0;i<m->c;i++){
+        m->values[line][i] *= a;
+    }
+}
+
+void Transvection(Matrix m,int i,int j,float a){
+    for(int k=0;k<m->c;k++){
+        m->values[i][k] += a * m->values[j][k]; 
+    }
+}
+
+Matrix Augment(Matrix m,Matrix I){
+    Matrix A = new_matrix(m->r,m->c+I->c);
+    for(int i=0;i<A->r;i++){
+        for(int j=0;j<A->c;j++){
+            A->values[i][j] = j < m->c ? m->values[i][j] : I->values[i][j-m->c];
+        }
+    }
+    return A;
 }
 
 Matrix Identity(int n){
@@ -208,38 +278,7 @@ Matrix Identity(int n){
     return I;
 }
 
-void State(Matrix m,...){
-    int row = 0;
-    int c=1;
-    while(c!=0){
-        c=0;
-        va_list list;
-        va_start(list,m);
-        Matrix a = m;
-        while(a!=NULL){
-            c += print_row(a,row);
-            printf("  ");
-            a = va_arg(list,Matrix);
-        }
-        va_end(list);
-        row++;
-        printf("\n");
-    }
 
-}
-
-int print_row(Matrix m,int row){
-    int c=0;
-    for(int i=0;i<m->c;i++){
-        if(row < m->r){
-            printf(FLOAT_FORMAT,m->values[row][i]);
-            c++;
-        }else{
-            printf(SPACE_FORMAT); 
-        }
-    }
-    return c;
-}
 
 
 //Memory management 
@@ -282,4 +321,14 @@ Matrix Return(Matrix m,Matrix temp){
     m->values = temp->values;
     free(temp);
     return m;
+}
+
+Matrix copy(Matrix m){
+    Matrix c = new_matrix(m->r,m->c);
+    for(int i=0;i<c->r;i++){
+        for(int j=0;j<c->c;j++){
+            c->values[i][j] = m->values[i][j];
+        }
+    }
+    return c;
 }
