@@ -91,11 +91,11 @@ void header(Matrix xB_T,Matrix xR){
     for(int i=0;i<xB_T->c;i++)
         printf("     x%.0f",xB_T->values[0][i]);
 
-    printf("    ");
+    printf("   ");
     for(int i=0;i<xR->c;i++)
         printf("    x%.0f",xR->values[0][i]);
 
-    printf(" |    -Z  |  Termes droit\n");    
+    printf("  |    -Z  |  Termes droit\n");    
 }
 
 void body(Matrix xB,Matrix I,Matrix R,Matrix Z,Matrix b){
@@ -115,7 +115,7 @@ void body(Matrix xB,Matrix I,Matrix R,Matrix Z,Matrix b){
 
 
 void footer(Matrix B,Matrix R,Matrix z,Matrix result){
-    printf("    -Z    |");
+    printf("   -Z     |");
     for(int i=0;i<B->c;i++)
         printf(FLOAT_FORMAT,B->values[0][i]);
     

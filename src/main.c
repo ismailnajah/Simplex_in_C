@@ -4,12 +4,12 @@
 #define DEFAULT_URL "input.csv"
 
 int main(){
-    char path[1000];
-    printf(" URL of the input file (Default: input.csv) :\n");
-    scanf("%s",path);
+    /* char path[1000];
+    printf(" URL of the input file (Default: input.csv) : ");
+    scanf("%s",path); */
 
     FILE *file;
-    file = fopen(path,"r");
+    file = fopen(DEFAULT_URL,"r");
     
     error_handler(file,"main");
     Matrix C,b,A;
@@ -27,8 +27,7 @@ int main(){
     xB = init_base_variables(B->c,1);
     xR = init_off_base_variables(B->c,R->c);
     show_system(xB,xR,B,R,cB,cR,b);
-    /* State(cR,cB,B,R,NULL);
-    show_matrix( Multiply(cB , Multiply( Inverse(B) , b ))); */
+    //State(B,R,cB,cR,NULL);
 
     free_memory(A,C,b,B,R,cB,cR,xB,xR,NULL);
     fclose(file);
