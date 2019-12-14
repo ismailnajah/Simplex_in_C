@@ -1,6 +1,6 @@
 
-all: bin/ bin/main.o bin/Matrix.o bin/Show.o
-	gcc -o "bin/main" "bin/main.o" "bin/Matrix.o" "bin/Show.o" -g
+all: bin/ bin/main.o bin/Matrix.o bin/Show.o bin/Simplex.o
+	gcc -o "bin/main" "bin/main.o" "bin/Simplex.o" "bin/Matrix.o" "bin/Show.o" -g
 
 bin/ :
 	[ -d bin ] || mkdir -p bin
@@ -13,3 +13,6 @@ bin/Matrix.o: src/Matrix.c
 
 bin/Show.o: src/Show.c
 	gcc -c "src/Show.c" -o bin/Show.o -g
+
+bin/Simplex.o: src/Simplex.c
+	gcc -c "src/Simplex.c" -o bin/Simplex.o -g

@@ -69,11 +69,9 @@ Matrix off_base_variables(Matrix A,int m){
 }
 
 Matrix init_base_variables(int m,int n){
-    Matrix X = new_matrix(m,n);
+    Matrix X = new_matrix(1,m);
     for(int i=0;i< m;i++){
-        for(int j=0;j<n;j++){
-            X->values[i][j] = 1+i+j;
-        }
+            X->values[0][i] = 1+i;
     }
     return X;
 }
@@ -314,7 +312,7 @@ void error_handler(void* pointer,char* msg){
     }
 }
 
-Matrix Return(Matrix m,Matrix temp){
+Matrix copy_values(Matrix m,Matrix temp){
     free2D(m->values,m->r);
     m->r = temp->r;
     m->c = temp->c;

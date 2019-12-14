@@ -14,6 +14,20 @@ struct Matrix{
 };
 typedef struct Matrix* Matrix;
 
+
+typedef struct{
+    float optimal_value;
+    Matrix xB;
+    Matrix xR;
+    Matrix cB;
+    Matrix cR;
+    Matrix B;
+    Matrix R;
+    Matrix b;
+    Matrix cR_cB_Bi_R;
+}Linear_Program;
+
+
 void get_data(FILE* file,Matrix *C,Matrix *b,Matrix *A);
 
 
@@ -58,6 +72,6 @@ void free_memory(Matrix m,...);
 
 //utility functions
 void error_handler(void* pointer,char* msg);
-Matrix Return(Matrix m,Matrix t);
+Matrix copy_values(Matrix m,Matrix t);
 
 #endif

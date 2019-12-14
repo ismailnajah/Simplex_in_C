@@ -1,4 +1,5 @@
 #include "Headers/Show.h"
+#include "Headers/Simplex.h"
 #define FLOAT_FORMAT " %6.2f"
 #define SPACE_FORMAT "       "
 #define BR 75
@@ -51,38 +52,24 @@ int print_row(Matrix m,int row){
     return c;
 }
 
-void show_system(Matrix xB,Matrix xR,Matrix B,Matrix R,Matrix cB,Matrix cR,Matrix b){
-    Matrix xB_T = init_base_variables(1,B->c);
-    Matrix I = Identity(B->c);
-    Matrix c_zero = new_matrix(B->r,1);
-    Matrix r_zero = new_matrix(1,B->c);
+void print_table(Linear_Program LP){
+    Matrix xB_T = Transpose(LP.xB);
+    Matrix c_zero = new_matrix(LP.B->r,1);
+    Matrix r_zero = new_matrix(1,LP.B->c);
     Matrix z = new_matrix(1,1);
     z->values[0][0] = 1;
 
-    
-    Matrix Bi = Inverse_Gaussian(B);
-    Matrix cB_Bi = Multiply( cB ,Bi);
-    Matrix Bi_R = Multiply(Bi,R);
-    Matrix cB_Bi_R = Multiply(cB_Bi,R);
-
-    Matrix Bi_b = Multiply(Bi,b);
-    Matrix cB_Bi_b = Multiply(cB_Bi,b);
-    Matrix cR_cB_Bi_R = Substract(cR,cB_Bi_R);
-
-    Matrix _cB_Bi_b = multiply_by_k(-1,cB_Bi_b);
 
     //Table
     br('-');
-    header(xB_T,xR);
+    header(LP.xB,LP.xR);
     br('-');
-    body(xB,I,Bi_R,c_zero,Bi_b);
+    body(xB_T,LP.B,LP.R,c_zero,LP.b);
     br('-');
-    footer(r_zero,cR_cB_Bi_R,z,_cB_Bi_b);
+    footer(r_zero,LP.cR_cB_Bi_R,z,LP.optimal_value);
     br('-');
-
     
-    free_memory(xB_T , I, c_zero, r_zero, z,Bi, cB_Bi, Bi_R,
-                cB_Bi_R, Bi_b, cB_Bi_b, cR_cB_Bi_R, _cB_Bi_b,NULL);
+    free_memory(xB_T , c_zero, r_zero, z,NULL);
 }
 
 
@@ -114,7 +101,7 @@ void body(Matrix xB,Matrix I,Matrix R,Matrix Z,Matrix b){
 }
 
 
-void footer(Matrix B,Matrix R,Matrix z,Matrix result){
+void footer(Matrix B,Matrix R,Matrix z,float result){
     printf("   -Z     |");
     for(int i=0;i<B->c;i++)
         printf(FLOAT_FORMAT,B->values[0][i]);
@@ -126,7 +113,7 @@ void footer(Matrix B,Matrix R,Matrix z,Matrix result){
     printf(" |");
     printf(FLOAT_FORMAT,z->values[0][0]);
     printf(" |");       
-    printf(FLOAT_FORMAT,result->values[0][0]);
+    printf(FLOAT_FORMAT,result);
     printf("\n");
 }
 
