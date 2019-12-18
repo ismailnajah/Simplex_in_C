@@ -1,5 +1,7 @@
 #include "Headers/Show.h"
 #include "Headers/Simplex.h"
+#include "Headers/Color.h"
+
 #define FLOAT_FORMAT " %6.2f"
 #define SPACE_FORMAT "       "
 #define BR 75
@@ -17,6 +19,7 @@ void show_matrix(Matrix m){
 void State(Matrix m,...){
     int row = 0;
     int c=1;
+    Pivot p={-1,-1};
     while(c!=0){
         c=0;
         
@@ -25,7 +28,7 @@ void State(Matrix m,...){
         Matrix a = m;
 
         while(a!=NULL){
-            c += print_row(a,row);
+            c += print_row(a,row,p);
             a = va_arg(list,Matrix);
             printf("  ");
             
@@ -37,12 +40,18 @@ void State(Matrix m,...){
 
 }
 
-int print_row(Matrix m,int row){
+int print_row(Matrix m,int row,Pivot p){
     int c=0;
     
     for(int i=0;i<m->c;i++){
         if(row < m->r){
-            printf(FLOAT_FORMAT,m->values[row][i]);  
+            if(i==p.col && row==p.row){
+                printf(BOLD_MANGENTA);
+                printf(FLOAT_FORMAT,m->values[row][i]);
+                printf(RESET);
+            }else{
+                printf(FLOAT_FORMAT,m->values[row][i]);
+            }
             c++;
         }else{
             printf(SPACE_FORMAT);
@@ -52,7 +61,7 @@ int print_row(Matrix m,int row){
     return c;
 }
 
-void print_table(Linear_Program LP){
+void print_table(Linear_Program LP,Pivot p){
     Matrix xB_T = Transpose(LP.xB);
     Matrix c_zero = new_matrix(LP.B->r,1);
     Matrix r_zero = new_matrix(1,LP.B->c);
@@ -64,7 +73,7 @@ void print_table(Linear_Program LP){
     br('-');
     header(LP.xB,LP.xR);
     br('-');
-    body(xB_T,LP.B,LP.R,c_zero,LP.b);
+    body(xB_T,LP.B,LP.R,c_zero,LP.b,p);
     br('-');
     footer(r_zero,LP.cR_cB_Bi_R,z,LP.optimal_value);
     br('-');
@@ -85,17 +94,18 @@ void header(Matrix xB_T,Matrix xR){
     printf("  |    -Z  |  Termes droit\n");    
 }
 
-void body(Matrix xB,Matrix I,Matrix R,Matrix Z,Matrix b){
+void body(Matrix xB,Matrix I,Matrix R,Matrix Z,Matrix b,Pivot p){
+    Pivot n = {-1,-1};
     for(int i=0;i<xB->r;i++){
         printf("   x%.0f",xB->values[i][0]);
         printf("     |");
-        print_row(I,i);
+        print_row(I,i,n);
         printf("  ");
-        print_row(R,i);
+        print_row(R,i,p);
         printf(" |");
-        print_row(Z,i);
+        print_row(Z,i,n);
         printf(" |");
-        print_row(b,i);
+        print_row(b,i,n);
         printf("\n");
     }
 }

@@ -1,77 +1,70 @@
 #include "Headers/Simplex.h"
 #define INFINITY 9999999
 
-int find_pivot_col(Matrix cR){
-    int col = 0;
-    float min = cR->values[0][0];
-    for(int i=1;i<cR->c;i++){
-        if(cR->values[0][i] < min){
-            min = cR->values[0][i];
-            col = i;
+Pivot find_pivot(Linear_Program LP){
+    Pivot p;
+    p.col = 0;
+    float min = LP.cR_cB_Bi_R->values[0][0];
+
+    for(int i=1; i < LP.cR_cB_Bi_R->c ;i++){
+        if( LP.cR_cB_Bi_R->values[0][i] < min){
+            min = LP.cR_cB_Bi_R->values[0][i];
+            p.col = i;
         }
     }
-    return min > 0 ? -1 : col;
-}
-
-int find_pivot_row(Matrix R,Matrix b,int col){
-    int row = -1;
-    float min = INFINITY;
-    for(int i=0;i<R->r;i++){
-        if(R->values[i][col] != 0){
-            float c = (float)(b->values[i][0] / R->values[i][col]);
+    if(min > 0){
+        p.col = -1;
+        return p;
+    }
+    min = INFINITY;
+    for(int i=0;i<LP.R->r;i++){
+        if(LP.R->values[i][p.col] != 0){
+            float c = (float)(LP.b->values[i][0] / LP.R->values[i][p.col]);
             if(c<min && c > 0){
-                row = i;
+                p.row = i;
                 min = c;
             }
         }
     }
-    return min > 0 ? row : -1;
+    if(min < 0)
+        p.row = -1;
+    return p;
 }
 
-void insert_pivot_in_base(Linear_Program LP,int p_row,int p_col){
-    swap( &LP.xB->values[0][p_row], &LP.xR->values[0][p_col]);
+void insert_pivot_in_base(Linear_Program LP,Pivot p){
+    swap( &LP.xB->values[0][p.row], &LP.xR->values[0][p.col]);
     for(int i=0;i<LP.R->r;i++){
-        swap(&LP.R->values[i][p_col],&LP.B->values[i][p_row]);
+        swap(&LP.R->values[i][p.col],&LP.B->values[i][p.row]);
     }
-    swap(&LP.cB->values[0][p_row],&LP.cR->values[0][p_col]);
+    swap(&LP.cB->values[0][p.row],&LP.cR->values[0][p.col]);
 }
 
 void Simplex(Matrix C,Matrix b,Matrix A){
     int m = A->r;
     
     Linear_Program LP;
-
     LP.cB = base_variables(C,m);
     LP.B = base_variables(A,m);
-
     LP.cR = off_base_variables(C,m);
     LP.R = off_base_variables(A,m);
-
     LP.xB = init_base_variables(LP.B->c,1);
     LP.xR = init_off_base_variables(LP.B->c,LP.R->c);
     LP.b = b;
-
     LP.cR_cB_Bi_R = new_matrix(LP.cR->r,LP.cR->c);
-
     LP.optimal_value = pivot(LP);
 
-    print_table(LP);
-
-    int p_row,p_col,i=1;
+    int i=1;
     while(true){
-        p_col = find_pivot_col(LP.cR_cB_Bi_R);
-        if(p_col<0)
+        Pivot p = find_pivot(LP);
+        print_table(LP,p);
+        if(p.row < 0 || p.col<0) 
             break;
 
-        p_row = find_pivot_row(LP.R , LP.b, p_col);
-        if(p_row<0)
-            break;
-
-        printf("\nIteration : %i   pivot(%i,%i) : %.2f\n",i,p_row,p_col,LP.R->values[p_row][p_col]);
-        
-        insert_pivot_in_base(LP,p_row,p_col);
+        printf("\nIteration : %i\n",i);
+        insert_pivot_in_base(LP,p);
         LP.optimal_value = pivot(LP);
-        print_table(LP);
+        p.col = -1;
+        p.row = -1;
         i++;
     }
 

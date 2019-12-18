@@ -27,6 +27,10 @@ typedef struct{
     Matrix cR_cB_Bi_R;
 }Linear_Program;
 
+typedef struct{
+    int row;
+    int col;
+}Pivot;
 
 void get_data(FILE* file,Matrix *C,Matrix *b,Matrix *A);
 
