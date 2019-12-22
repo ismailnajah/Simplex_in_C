@@ -11,11 +11,11 @@ the input file contains :
 ## Input Exemple
 ```
 5 3
--8 0 0 -6 0
+0 0 0 -6 -8
 30 24 18
-5 0 0 3 1
-2 1 0 3 0
-1 0 1 3 0
+1 0 0 3 5
+0 1 0 3 2
+0 0 1 3 1
 ```
 
 ## To compile the program just launch this command:
