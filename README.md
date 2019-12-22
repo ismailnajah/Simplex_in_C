@@ -17,3 +17,13 @@ the input file contains :
 2 1 0 3 0
 1 0 1 3 0
 ```
+
+## To compile the program just launch this command:
+###     on Windows:
+```
+make.bat
+```
+###     on Linux:
+```
+make
+```
